@@ -1,2 +1,3 @@
-# react-python
-a proof of concept react app that utilizes WASM python ⚛🐍
+# Preact-Python
+
+a proof of concept Preact app that utilizes WASM python ⚛🐍
