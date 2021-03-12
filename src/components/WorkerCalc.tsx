@@ -1,35 +1,32 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
+import { runPythonAsync } from '../utils/python';
 
 export const WorkerCalc = () => {
-  const [worker] = useState<Worker>(() => {
-    return new Worker('/webworker.js');
-  });
-
   const [sum, setSum] = useState<number | string>('');
 
-  useEffect(() => {
-    if (worker && !worker.onmessage) {
-      worker.onmessage = (e) => {
-        console.log(e);
-        setSum(e.data);
-      };
-    }
-  }, [worker]);
-
-  const sendMessageToWorker = (e) => {
+  const runPythonCode = async (e) => {
     e.preventDefault();
-    const a = e.target['a'].value;
-    const b = e.target['b'].value;
-    worker.postMessage([a, b]);
+    const { results, error } = await runPythonAsync(
+      `
+    returnVal = ${e.target['a'].value} + ${e.target['b'].value}
+    `,
+      {}
+    );
+    if (error) {
+      console.error('something broke');
+    } else {
+      console.log(results);
+      setSum(parseInt(results));
+    }
   };
 
   return (
     <>
       <p>Hello Vite + Preact!</p>
       <p>
-        <form onSubmit={sendMessageToWorker}>
-          <input type="number" name="a" id="a" /> +
-          <input type="number" name="b" id="b" />
+        <form onSubmit={runPythonCode}>
+          <input type="number" name="a" id="a" value={0} /> +
+          <input type="number" name="b" id="b" value={0} />
           <button type="submit">send message to worker</button>
         </form>
       </p>
